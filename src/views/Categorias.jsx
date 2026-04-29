@@ -34,20 +34,20 @@ const Categorias = () => {
     );
 
     const manejarBusqueda = (e) => {
-      setTextoBusqueda(e.target.value);
+        setTextoBusqueda(e.target.value);
     };
 
     useEffect(() => {
         if (!textoBusqueda.trim()) {
-          setCategoriasFiltradas(categorias);
+            setCategoriasFiltradas(categorias);
         } else {
-          const textoLower = textoBusqueda.toLowerCase().trim();
-          const filtradas = categorias.filter(
-            (cat) =>
-              cat.nombre_categoria.toLowerCase().includes(textoLower) ||
-            (cat.descripcion_categoria && cat.descripcion_categoria.toLowerCase().includes(textoLower))
-          );
-          setCategoriasFiltradas(filtradas);
+            const textoLower = textoBusqueda.toLowerCase().trim();
+            const filtradas = categorias.filter(
+                (cat) =>
+                    cat.nombre_categoria.toLowerCase().includes(textoLower) ||
+                    (cat.descripcion_categoria && cat.descripcion_categoria.toLowerCase().includes(textoLower))
+            );
+            setCategoriasFiltradas(filtradas);
         }
     }, [textoBusqueda, categorias]);
 
@@ -302,22 +302,22 @@ const Categorias = () => {
             {/* Cuadro de busqueda debajo de la linea divisora */}
             <Row className="mb-4">
                 <Col md={6} lg={5}>
-                  <CuadroBusquedas
-                  textoBusqueda={textoBusqueda}
-                  manejarCambioBusqueda={manejarBusqueda}
-                  placeholder="Buscar por nombre o descripcion..."
-                  />
-            </Col>
+                    <CuadroBusquedas
+                        textoBusqueda={textoBusqueda}
+                        manejarCambioBusqueda={manejarBusqueda}
+                        placeholder="Buscar por nombre o descripcion..."
+                    />
+                </Col>
             </Row>
 
             {/* Mensaje de no coincidencias solo cuando hay busqueda y no hay resultados */}
             {!cargando && textoBusqueda.trim() && categoriasFiltradas.length === 0 && (
                 <Row className="mb-4">
                     <Col>
-                    <Alert variant="info" className="text-center">
-                     <i className="bi bi-info-circle me-2"></i>
-                     No se encontraron categorias que coincidan con "{textoBusqueda}".
-                    </Alert>
+                        <Alert variant="info" className="text-center">
+                            <i className="bi bi-info-circle me-2"></i>
+                            No se encontraron categorias que coincidan con "{textoBusqueda}".
+                        </Alert>
                     </Col>
                 </Row>
             )}
@@ -326,25 +326,15 @@ const Categorias = () => {
             {!cargando && categoriasFiltradas.length > 0 && (
                 <Row>
                     <Col xs={12} sm={12} md={12} className="d-lg-none">
-                    <TarjetaCategoria
-                      categorias={categoriasFiltradas}
-                      abrirModalEdicion={abrirModalEdicion}
-                      abrirModalEliminacion={abrirModalEliminacion}
-                      />
-                   </Col>
+                        <TarjetaCategoria
+                            categorias={categoriasFiltradas}
+                            abrirModalEdicion={abrirModalEdicion}
+                            abrirModalEliminacion={abrirModalEliminacion}
+                        />
+                    </Col>
                 </Row>
             )}
 
-            {/* Paginacion */}
-            {categoriasFiltradas.length > 0 && (
-              <Paginacion
-               registrosPorPagina={registrosPorPagina}
-               totalRegistros={categoriasFiltradas.length}
-               paginaActual={paginaActual}
-               establecerPaginaActual={establecerPaginaActual}
-               establecerRegistrosPorPagina={establecerRegistrosPorPagina}
-              />
-            )}
 
             {/* Lista de categorias cargadas */}
             {!cargando && categorias.length > 0 && (
@@ -366,6 +356,18 @@ const Categorias = () => {
                     abrirModalEliminacion={abrirModalEliminacion}
                 />
             </Col>
+
+
+            {/* Paginacion */}
+            {categoriasFiltradas.length > 0 && (
+                <Paginacion
+                    registrosPorPagina={registrosPorPagina}
+                    totalRegistros={categoriasFiltradas.length}
+                    paginaActual={paginaActual}
+                    establecerPaginaActual={establecerPaginaActual}
+                    establecerRegistrosPorPagina={establecerRegistrosPorPagina}
+                />
+            )}
 
             {/* Modal de Registro */}
             <ModalRegistroCategoria
