@@ -122,3 +122,32 @@
   padding: 6px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
+
+/* 1. EL MENÚ SE QUEDA INTACTO Y PERFECTO */
+.navbar, nav, [class*="navbar"] {
+  height: auto !important;
+  padding: 0.5rem 1rem !important;
+  margin: 0 !important;
+  position: static !important;
+}
+
+/* 2. ELIMINAMOS FRANJAS NEGRAS: Imagen de extremo a extremo de la pantalla */
+body {
+  background-image: url('./assets/WhatsApp Image 2026-05-18 at 11.13.22 PM.jpeg') !important;
+  
+  /* 100vw elimina por completo las líneas negras de los lados */
+  background-size: 100vw auto !important; 
+  
+  /* La alineamos arriba justo donde termina la barra azul */
+  background-position: center 60px !important; 
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* 3. LA TABLA SE QUEDA EN SU SITIO ORIGINAL */
+.container, .container-fluid, main {
+  margin-top: 30px !important;
+  position: relative !important;
+}

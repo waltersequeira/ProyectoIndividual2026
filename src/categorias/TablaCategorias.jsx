@@ -5,7 +5,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 const TablaCategorias = ({
     categorias,
     abrirModalEdicion,
-    abrirModalEliminacion
+    abrirModalEliminacion,
+    generarPDFCategoria
 }) => {
     console.log("Tratando de demostrar categorias");
     console.log(categorias);
@@ -60,6 +61,17 @@ const TablaCategorias = ({
                                         className="ms-2"
                                     >
                                         <i className="bi bi-trash"></i>
+                                        
+                                    </Button>
+
+
+                                    <Button
+                                        variant="outline-primary"
+                                        size="sm"
+                                        className="m-1"
+                                        onClick={() => generarPDFCategoria(categoria)}
+                                    >
+                                        <i className="bi bi-file-earmark-pdf"></i>
                                     </Button>
                                 </td>
                             </tr>

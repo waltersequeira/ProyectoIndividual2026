@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Button, Table, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
 import { supabase } from "../database/supabaseconfig";
+
 import ModalRegistroProducto from "../productos/ModalRegistroProducto";
 import NotificacionOperacion from "../components/NotificacionOperacion";
+import TablaProductos from "../productos/TablaProductos";
 import CuadroBusquedas from "../busquedas/CuadroBusquedas";
 import ModalEdicionProducto from "../productos/ModalEdicionProducto";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const Productos = () => {
 
@@ -17,6 +21,38 @@ const Productos = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
   const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
+
+  // FUNCIÓN DEL PDF CORREGIDA PARA MOSTRAR EL NOMBRE REAL DE LA CATEGORÍA
+  const generarPDFProducto = (producto) => {
+    const doc = new jsPDF();
+
+    // Título
+    doc.setFontSize(18);
+    doc.text("Reporte de Producto", 14, 20);
+
+    // Línea decorativa
+    doc.line(14, 25, 195, 25);
+
+    // Buscamos el nombre de la categoría para el PDF
+    const nombreCategoriaReal = obtenerNombreCategoria(producto.categoria_producto);
+
+    // Información del producto
+    doc.setFontSize(12);
+    autoTable(doc, {
+      startY: 35,
+      head: [["Campo", "Valor"]],
+      body: [
+        ["ID", producto.id_producto],
+        ["Nombre", producto.nombre_producto],
+        ["Descripción", producto.descripcion_producto || "Sin descripción"],
+        ["Categoría", nombreCategoriaReal],
+        ["Precio de venta", producto.precio_venta != null ? `S/ ${producto.precio_venta.toFixed(2)}` : "-"],
+      ],
+    });
+
+    // Descargar PDF
+    doc.save(`producto_${producto.id_producto}.pdf`);
+  };
 
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre_producto: "",
@@ -39,7 +75,7 @@ const Productos = () => {
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [toast, setToast] = useState({ mostrar: false, mensaje: "", tipo: "" });
 
-  
+
   const manejoCambioInput = (e) => {
     const { name, value } = e.target;
     setNuevoProducto((prev) => ({ ...prev, [name]: value }));
@@ -61,7 +97,7 @@ const Productos = () => {
 
   useEffect(() => {
     if (!textoBusqueda.trim()) {
-      setProductosFiltrados(productos); 
+      setProductosFiltrados(productos);
     } else {
       const textoLower = textoBusqueda.toLowerCase().trim();
       const filtrados = productos.filter((prod) => {
@@ -76,7 +112,7 @@ const Productos = () => {
       });
       setProductosFiltrados(filtrados);
     }
-  }, [textoBusqueda, productos]); 
+  }, [textoBusqueda, productos]);
 
   useEffect(() => {
     cargarCategorias();
@@ -164,7 +200,7 @@ const Productos = () => {
       if (insertError) throw insertError;
 
       await cargarProductos();
-      
+
       setNuevoProducto({
         nombre_producto: "",
         descripcion_producto: "",
@@ -191,6 +227,16 @@ const Productos = () => {
     if (archivo && archivo.type.startsWith("image/")) {
       setProductoEditar((prev) => ({ ...prev, archivo }));
     }
+  };
+
+  const abrirModalEdicion = (producto) => {
+    setProductoEditar({ ...producto, archivo: null });
+    setMostrarModalEdicion(true);
+  };
+
+  const abrirModalEliminacion = (producto) => {
+    setProductoAEliminar(producto);
+    setMostrarModalEliminacion(true);
   };
 
   const actualizarProducto = async () => {
@@ -236,7 +282,7 @@ const Productos = () => {
 
         if (productoEditar.url_imagen) {
           const nombreAnterior = productoEditar.url_imagen.split("/").pop().split("?")[0];
-          await supabase.storage.from("imagenes_productos").remove([nombreAnterior]).catch(() => {});
+          await supabase.storage.from("imagenes_productos").remove([nombreAnterior]).catch(() => { });
         }
 
       }
@@ -300,7 +346,7 @@ const Productos = () => {
         mostrarModal={mostrarModal}
         setMostrarModal={setMostrarModal}
         nuevoProducto={nuevoProducto}
-        manejoCambioInput={manejoCambioInput} 
+        manejoCambioInput={manejoCambioInput}
         manejoCambioArchivo={manejoCambioArchivo}
         agregarProducto={agregarProducto}
         categorias={categorias}
@@ -320,11 +366,12 @@ const Productos = () => {
         mostrar={toast.mostrar}
         mensaje={toast.mensaje}
         tipo={toast.tipo}
-        onCerrar={() => setToast({ ...toast, mostrar: false })} 
+        onCerrar={() => setToast({ ...toast, mostrar: false })}
       />
 
+      {/* RENDERIZADO ÚNICO DE LA TABLA COMPONENTE */}
       <Row className="mt-4">
-        <Col>
+        <Col lg={12}>
           {cargando ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
@@ -333,51 +380,13 @@ const Productos = () => {
           ) : productosFiltrados.length === 0 ? (
             <div className="alert alert-info">No hay productos para mostrar.</div>
           ) : (
-            <Table striped bordered hover responsive>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Imagen</th>
-                  <th className="text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productosFiltrados.map((producto) => (
-                  <tr key={producto.id_producto}>
-                    <td>{producto.id_producto}</td>
-                    <td>{producto.nombre_producto}</td>
-                    <td>{obtenerNombreCategoria(producto.categoria_producto)}</td>
-                    <td>{producto.precio_venta != null ? `S/ ${producto.precio_venta.toFixed(2)}` : "-"}</td>
-                    <td>
-                      {producto.url_imagen ? (
-                        <img
-                          src={producto.url_imagen}
-                          alt={producto.nombre_producto}
-                          style={{ maxWidth: "80px", maxHeight: "60px", objectFit: "cover" }}
-                        />
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td className="text-center">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={() => {
-                          setProductoEditar({ ...producto, archivo: null });
-                          setMostrarModalEdicion(true);
-                        }}
-                      >
-                        <i className="bi bi-pencil"></i>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            <TablaProductos
+              productos={productosFiltrados} // Le pasamos los filtrados por la búsqueda
+              categorias={categorias}        // ¡Aquí conectamos la segunda tabla obligatoria!
+              abrirModalEdicion={abrirModalEdicion}
+              abrirModalEliminacion={abrirModalEliminacion}
+              generarPDFProducto={generarPDFProducto}
+            />
           )}
         </Col>
       </Row>
