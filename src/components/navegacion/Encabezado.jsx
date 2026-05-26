@@ -67,6 +67,7 @@ const Encabezado = () => {
         } else {
             contenidoMenu = (
                 <>
+                    {/* CORREGIDO: ms-auto y pe-2 para alinear todas las pestañas a la derecha correctamente */}
                     <Nav className="ms-auto pe-2">
                         <Nav.Link
                             onClick={() => manejarNavegacion("/")}
@@ -92,7 +93,6 @@ const Encabezado = () => {
                             <strong>Productos</strong>
                         </Nav.Link>
 
-                        {/* Opción para ir al catálogo público desde admin */}
                         <Nav.Link
                             onClick={() => manejarNavegacion("/catalogo")}
                             className={mostrarMenu ? "color-texto-marca" : "text-white"}
@@ -101,28 +101,47 @@ const Encabezado = () => {
                             <strong>Catálogo</strong>
                         </Nav.Link>
 
-                        {/* Opción para ir al Empleado público desde admin */}
                         <Nav.Link
                             onClick={() => manejarNavegacion("/empleados")}
                             className={mostrarMenu ? "color-texto-marca" : "text-white"}
                         >
-                            {mostrarMenu ? <i className="bi-images me-2"></i> : null}
+                            {mostrarMenu ? <i className="bi-people me-2"></i> : null}
                             <strong>Empleado</strong>
                         </Nav.Link>
 
-                        {/* Ícono cerrar sesión en barra superior */}
+                        {/* NUEVA PESTAÑA: Clientes */}
+                        <Nav.Link
+                            onClick={() => manejarNavegacion("/clientes")}
+                            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+                        >
+                            {mostrarMenu ? <i className="bi-people-fill me-2"></i> : null}
+                            <strong>Clientes</strong>
+                        </Nav.Link>
+
+                        {/* NUEVA PESTAÑA: Ventas */}
+                        <Nav.Link
+                            onClick={() => manejarNavegacion("/ventas")}
+                            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+                        >
+                            {mostrarMenu ? <i className="bi-cash-coin me-2"></i> : null}
+                            <strong>Ventas</strong>
+                        </Nav.Link>
+
+                        {/* Ícono cerrar sesión alineado al final de la barra superior */}
                         {mostrarMenu ? null : (
                             <Nav.Link
                                 onClick={cerrarSesion}
-                                className={mostrarMenu ? "color-texto-marca" : "text-white"}
+                                className="text-white ms-2"
+                                title="Cerrar sesión"
                             >
                                 <i className="bi-box-arrow-right me-2"></i>
                             </Nav.Link>
                         )}
-                        <hr />
                     </Nav>
+                    
+                    {mostrarMenu && <hr className="text-white" />}
 
-                    {/* Información de usuario y botón cerrar sesión */}
+                    {/* Información de usuario y botón cerrar sesión en pantallas móviles (Offcanvas) */}
                     {mostrarMenu && (
                         <div className="mt-3 p-3 rounded bg-light text-dark">
                             <p className="mb-2">

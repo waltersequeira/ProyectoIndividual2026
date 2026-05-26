@@ -131,23 +131,119 @@
   position: static !important;
 }
 
-/* 2. ELIMINAMOS FRANJAS NEGRAS: Imagen de extremo a extremo de la pantalla */
+/* 2. ELIMINAMOS FRANJAS NEGRAS: Imagen con sus colores originales al 100% */
 body {
-  background-image: url('./assets/WhatsApp Image 2026-05-18 at 11.13.22 PM.jpeg') !important;
+  /* Eliminamos el gradiente para recuperar todo el color y vida de la pintura */
+  background-image: url('./assets/WhatsApp Image 2026-05-18 at 11.10.12 PM.jpeg') !important;
   
-  /* 100vw elimina por completo las líneas negras de los lados */
-  background-size: 100vw auto !important; 
-  
-  /* La alineamos arriba justo donde termina la barra azul */
-  background-position: center 60px !important; 
+  background-size: cover !important; 
+  background-position: center center !important; 
   background-repeat: no-repeat !important;
   background-attachment: fixed !important;
   min-height: 100vh;
   margin: 0;
 }
 
-/* 3. LA TABLA SE QUEDA EN SU SITIO ORIGINAL */
-.container, .container-fluid, main {
-  margin-top: 30px !important;
-  position: relative !important;
+/* 3. CORRECCIÓN PARA EL TEXTO "INICIO": Creación del bloque estilizado */
+.margen-superior-main h1, 
+.margen-superior-main h3, 
+.margen-superior-main .h3 {
+  color: #212529 !important; /* Texto oscuro elegante */
+  background-color: rgba(255, 255, 255, 0.75); /* Fondo blanco semitransparente como el de las tablas */
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px); /* Efecto esmerilado premium */
+}
+
+/* ==================== TARJETAS CLIENTES ==================== */
+
+.tarjeta-cliente-contenedor {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.tarjeta-cliente-cuerpo {
+  transition: opacity 150ms ease;
+}
+
+.tarjeta-cliente-cuerpo-activo {
+  opacity: 0.4;
+}
+
+.tarjeta-cliente-cuerpo-inactivo {
+  opacity: 1;
+}
+
+.tarjeta-cliente-placeholder-imagen {
+  height: 55px;
+  width: 55px;
+  line-height: 55px;
+  text-align: center;
+}
+
+.tarjeta-cliente-capa {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 8px;
+}
+
+.tarjeta-cliente-botones-capa {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* ==================== TARJETAS VENTAS ==================== */
+.tarjeta-venta-contenedor {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.tarjeta-venta-cuerpo {
+  transition: opacity 150ms ease;
+}
+
+.tarjeta-venta-cuerpo-activo {
+  opacity: 0.4;
+}
+
+.tarjeta-venta-cuerpo-inactivo {
+  opacity: 1;
+}
+
+.tarjeta-venta-placeholder-imagen {
+  height: 55px;
+  width: 55px;
+  line-height: 55px;
+  text-align: center;
+}
+
+.tarjeta-venta-capa {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 8px;
+}
+
+.tarjeta-venta-botones-capa {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }

@@ -20,7 +20,7 @@ const NotificacionOperacion = ({ mostrar, mensaje, tipo, onCerrar }) =>{
     return (
         <ToastContainer position="top-center" className="p-2">
           <Toast
-            onClone={() => {
+            onClose={() => {
                 setVisible(false);
                 onCerrar();
             }}
