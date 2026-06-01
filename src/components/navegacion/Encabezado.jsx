@@ -3,8 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import logo from "../../assets/comunista.png";
 import { supabase } from "../../database/supabaseconfig";
+import ChatIA from "../ia/ChatIA";
 
 const Encabezado = () => {
+
+    const [mostrarChatIA, setMostrarChatIA] = useState(false);
 
     const [mostrarMenu, setMostrarMenu] = useState(false);
     const navigate = useNavigate();
@@ -127,6 +130,10 @@ const Encabezado = () => {
                             <strong>Ventas</strong>
                         </Nav.Link>
 
+                        <Nav.Link onClick={() => setMostrarChatIA(true)} className="text-white">
+                            <i className="bi bi-robot me-2"></i>
+                        </Nav.Link>
+
                         {/* Ícono cerrar sesión alineado al final de la barra superior */}
                         {mostrarMenu ? null : (
                             <Nav.Link
@@ -138,7 +145,7 @@ const Encabezado = () => {
                             </Nav.Link>
                         )}
                     </Nav>
-                    
+
                     {mostrarMenu && <hr className="text-white" />}
 
                     {/* Información de usuario y botón cerrar sesión en pantallas móviles (Offcanvas) */}
@@ -165,51 +172,55 @@ const Encabezado = () => {
     }
 
     return (
-        <Navbar expand="md" fixed="top" className="color-navbar shadow-lg" variant="dark">
-            <Container>
+        <>
+            <Navbar expand="md" fixed="top" className="color-navbar shadow-lg" variant="dark">
+                <Container>
 
-                <Navbar.Brand
-                    onClick={() => manejarNavegacion(esCatalogo ? "/catalogo" : "/")}
-                    className="text-white fw-bold d-flex align-items-center"
-                    style={{ cursor: "pointer" }}
-                >
-                    <img
-                        alt=""
-                        src={logo}
-                        width="45"
-                        height="45"
-                        className="d-inline-block me-2"
-                    />
-                    <strong>
-                        <h4 className="mb-0">Discosa</h4>
-                    </strong>
-                </Navbar.Brand>
+                    <Navbar.Brand
+                        onClick={() => manejarNavegacion(esCatalogo ? "/catalogo" : "/")}
+                        className="text-white fw-bold d-flex align-items-center"
+                        style={{ cursor: "pointer" }}
+                    >
+                        <img
+                            alt=""
+                            src={logo}
+                            width="45"
+                            height="45"
+                            className="d-inline-block me-2"
+                        />
+                        <strong>
+                            <h4 className="mb-0">Discosa</h4>
+                        </strong>
+                    </Navbar.Brand>
 
-                {/* Botón del menú */}
-                {!esLogin && (
-                    <Navbar.Toggle
-                        aria-controls="menu-offcanvas"
-                        onClick={manejarToggle}
-                    />
-                )}
+                    {/* Botón del menú */}
+                    {!esLogin && (
+                        <Navbar.Toggle
+                            aria-controls="menu-offcanvas"
+                            onClick={manejarToggle}
+                        />
+                    )}
 
-                {/* Menú lateral */}
-                <Navbar.Offcanvas
-                    id="menu-offcanvas"
-                    placement="end"
-                    show={mostrarMenu}
-                    onHide={() => setMostrarMenu(false)}
-                >
-                    <Offcanvas.Header closeButton>
-                        <Offcanvas.Title>Menú Discosa</Offcanvas.Title>
-                    </Offcanvas.Header>
 
-                    <Offcanvas.Body>
-                        {contenidoMenu}
-                    </Offcanvas.Body>
-                </Navbar.Offcanvas>
-            </Container>
-        </Navbar>
+                    {/* Menú lateral */}
+                    <Navbar.Offcanvas
+                        id="menu-offcanvas"
+                        placement="end"
+                        show={mostrarMenu}
+                        onHide={() => setMostrarMenu(false)}
+                    >
+                        <Offcanvas.Header closeButton>
+                            <Offcanvas.Title>Menú Discosa</Offcanvas.Title>
+                        </Offcanvas.Header>
+
+                        <Offcanvas.Body>
+                            {contenidoMenu}
+                        </Offcanvas.Body>
+                    </Navbar.Offcanvas>
+                </Container>
+            </Navbar>
+            <ChatIA mostrar={mostrarChatIA} onCerrar={() => setMostrarChatIA(false)} />
+        </>
     );
 };
 
