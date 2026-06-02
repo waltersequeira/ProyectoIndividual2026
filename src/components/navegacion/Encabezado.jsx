@@ -4,6 +4,7 @@ import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import logo from "../../assets/comunista.png";
 import { supabase } from "../../database/supabaseconfig";
 import ChatIA from "../ia/ChatIA";
+import Dashboard from "../../views/Dashboard";
 
 const Encabezado = () => {
 
@@ -128,6 +129,14 @@ const Encabezado = () => {
                         >
                             {mostrarMenu ? <i className="bi-cash-coin me-2"></i> : null}
                             <strong>Ventas</strong>
+                        </Nav.Link>
+
+                         <Nav.Link
+                            onClick={() => manejarNavegacion("/dashboard")}
+                            className={mostrarMenu ? "color-texto-marca" : "text-white"}
+                        >
+                            {mostrarMenu ? <i className="bi-cash-coin me-2"></i> : null}
+                            <strong>Dashboard</strong>
                         </Nav.Link>
 
                         <Nav.Link onClick={() => setMostrarChatIA(true)} className="text-white">

@@ -13,6 +13,7 @@ import Pagina404 from "./views/Pagina404";
 import Empleados from "./views/Empleados";
 import Ventas from "./views/Ventas";
 import Clientes from "./views/Clientes";
+import Dashboard from "./views/Dashboard";
 
 import "./App.css";
 
@@ -42,6 +43,8 @@ const App = () => {
 
           <Route path="/ventas" element={<RutaProtegida><Ventas /></RutaProtegida>} />
 
+          <Route path="/dashboard" element={<RutaProtegida><Dashboard /></RutaProtegida>} />
+          
           {/* Ruta para errores 404 */}
           <Route path="*" element={<Pagina404 />} />
         </Routes>
