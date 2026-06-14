@@ -5,7 +5,9 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 const TarjetaCategoria = ({
     categorias,
     abrirModalEdicion,
-    abrirModalEliminacion
+    abrirModalEliminacion,
+    copiarCategoria,
+    generarQRimagen
 }) => {
 
     const [cargando, setCargando] = useState(true);
@@ -56,8 +58,8 @@ const TarjetaCategoria = ({
                             >
                                 <Card.Body
                                     className={`p-2 tarjeta-categoria-cuerpo ${tarjetaActiva
-                                            ? "tarjeta-categoria-activo"
-                                            : "tarjeta-categoria-cuerpo-inactivo"
+                                        ? "tarjeta-categoria-activo"
+                                        : "tarjeta-categoria-cuerpo-inactivo"
                                         }`}
                                 >
                                     <Row className="align-items-center gx-3">
@@ -128,6 +130,28 @@ const TarjetaCategoria = ({
 
                                             >
                                                 <i className="bi bi-trash"></i>
+                                            </Button>
+
+                                            <Button
+                                                variant="outline-success"
+                                                size="sm"
+                                                className="m-1"
+                                                onClick={() => copiarCategoria(categoria)}
+                                                title="Copiar al portapapeles"
+                                            >
+                                                <i className="bi bi-clipboard"></i>
+                                            </Button>
+
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                onClick={() => {
+                                                    generarQRImagen(categoria);
+                                                    setIdTarjetaActiva(null);
+                                                }}
+                                                title="Generar codigo QR de la imagen"
+                                            >
+                                                <i className="bi bi-qr-code"></i>
                                             </Button>
                                         </div>
                                     </div>

@@ -7,8 +7,11 @@ import NotificacionOperacion from "../components/NotificacionOperacion";
 import TablaProductos from "../productos/TablaProductos";
 import CuadroBusquedas from "../busquedas/CuadroBusquedas";
 import ModalEdicionProducto from "../productos/ModalEdicionProducto";
+import ModalEliminacionProducto from "../productos/ModalEliminacionProducto";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import ModalQRProducto from "../productos/ModalQRProducto";
+import html2canvas from "html2canvas";
 
 const Productos = () => {
 
@@ -21,6 +24,26 @@ const Productos = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
   const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
+
+  const [mostrarModalQR, setMostrarModalQR] = useState(false);
+  const [productoQR, setProductoQR] = useState(null);
+
+  // FUNCIÓN PARA COPIAR AL PORTAPAPELES
+  const copiarProducto = async (producto) => {
+    const texto = `${producto.nombre_producto} - S/ ${producto.precio_venta.toFixed(2)}`;
+    try {
+      await navigator.clipboard.writeText(texto);
+      setToast({ mostrar: true, mensaje: "Producto copiado al portapapeles", tipo: "exito" });
+    } catch (err) {
+      setToast({ mostrar: true, mensaje: "Error al copiar", tipo: "error" });
+    }
+  };
+
+  // FUNCIÓN PARA ABRIR EL MODAL DEL QR
+  const generarQRImagen = (producto) => {
+    setProductoQR(producto);
+    setMostrarModalQR(true);
+  };
 
   // FUNCIÓN DEL PDF CORREGIDA PARA MOSTRAR EL NOMBRE REAL DE LA CATEGORÍA
   const generarPDFProducto = (producto) => {
@@ -154,6 +177,13 @@ const Productos = () => {
     }
   };
 
+  const limpiarNombreArchivo = (nombre) => {
+    return nombre
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quita acentos
+      .replace(/[^a-z0-9.]/gi, '_')                     // Cambia símbolos y espacios por guion bajo
+      .toLowerCase();
+  };
+
   const agregarProducto = async () => {
     try {
       if (
@@ -172,7 +202,8 @@ const Productos = () => {
 
       setMostrarModal(false);
 
-      const nombreArchivo = `${Date.now()}_${nuevoProducto.archivo.name}`;
+      const nombreLimpio = limpiarNombreArchivo(nuevoProducto.archivo.name);
+      const nombreArchivo = `${Date.now()}_${nombreLimpio}`;
 
 
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -230,8 +261,12 @@ const Productos = () => {
   };
 
   const abrirModalEdicion = (producto) => {
-    setProductoEditar({ ...producto, archivo: null });
-    setMostrarModalEdicion(true);
+    if (producto && producto.id_producto) {
+      setProductoEditar({ ...producto, archivo: null });
+      setMostrarModalEdicion(true);
+    } else {
+      console.error("Error: El producto no tiene un ID válido", producto);
+    }
   };
 
   const abrirModalEliminacion = (producto) => {
@@ -241,33 +276,35 @@ const Productos = () => {
 
   const actualizarProducto = async () => {
     try {
-
-      if (
-        !productoEditar.nombre_producto.trim() ||
-        !productoEditar.categoria_producto ||
-        !productoEditar.precio_venta
-      ) {
-        setToast({
-          mostrar: true,
-          mensaje: "Completa los campos obligatorios",
-          tipo: "advertencia",
-        });
+      // 1. VALIDACIÓN DETALLADA
+      if (!productoEditar.nombre_producto?.trim()) {
+        setToast({ mostrar: true, mensaje: "Falta el nombre", tipo: "advertencia" });
+        return;
+      }
+      if (!productoEditar.categoria_producto) {
+        setToast({ mostrar: true, mensaje: "Falta la categoría", tipo: "advertencia" });
+        return;
+      }
+      if (productoEditar.precio_venta === "" || productoEditar.precio_venta === null) {
+        setToast({ mostrar: true, mensaje: "Falta el precio", tipo: "advertencia" });
         return;
       }
 
       setMostrarModalEdicion(false);
 
+      // 2. PREPARAR DATOS
       let datosActualizados = {
         nombre_producto: productoEditar.nombre_producto,
         descripcion_producto: productoEditar.descripcion_producto || null,
         categoria_producto: productoEditar.categoria_producto,
-        precio_venta: parseFloat(productoEditar.precio_venta),
+        precio_venta: parseFloat(productoEditar.precio_venta) || 0,
         url_imagen: productoEditar.url_imagen,
       };
 
+      // 3. PROCESAR IMAGEN SI HAY UNA NUEVA
       if (productoEditar.archivo) {
-
-        const nombreArchivo = `${Date.now()}_${productoEditar.archivo.name}`;
+        const nombreLimpio = limpiarNombreArchivo(productoEditar.archivo.name);
+        const nombreArchivo = `${Date.now()}_${nombreLimpio}`;
 
         const { error: uploadError } = await supabase.storage
           .from("imagenes_productos")
@@ -278,15 +315,17 @@ const Productos = () => {
         const { data: urlData } = supabase.storage
           .from("imagenes_productos")
           .getPublicUrl(nombreArchivo);
+
         datosActualizados.url_imagen = urlData.publicUrl;
 
+        // Eliminar imagen anterior
         if (productoEditar.url_imagen) {
           const nombreAnterior = productoEditar.url_imagen.split("/").pop().split("?")[0];
           await supabase.storage.from("imagenes_productos").remove([nombreAnterior]).catch(() => { });
         }
-
       }
 
+      // 4. ACTUALIZAR EN SUPABASE
       const { error } = await supabase
         .from("productos")
         .update(datosActualizados)
@@ -294,8 +333,8 @@ const Productos = () => {
 
       if (error) throw error;
 
+      // 5. FINALIZAR
       await cargarProductos();
-
       setProductoEditar({
         id_producto: "",
         nombre_producto: "",
@@ -352,6 +391,15 @@ const Productos = () => {
         categorias={categorias}
       />
 
+      <ModalEliminacionProducto
+        mostrarModalEliminacion={mostrarModalEliminacion}
+        setMostrarModalEliminacion={setMostrarModalEliminacion}
+        setProductoAEliminar={setProductoAEliminar}
+        productoAEliminar={productoAEliminar}
+        setToast={setToast}
+        cargarProductos={cargarProductos}
+      />
+
       <ModalEdicionProducto
         mostrarModalEdicion={mostrarModalEdicion}
         setMostrarModalEdicion={setMostrarModalEdicion}
@@ -360,6 +408,12 @@ const Productos = () => {
         manejoCambioArchivoActualizar={manejoCambioArchivoActualizar}
         actualizarProducto={actualizarProducto}
         categorias={categorias}
+      />
+
+      <ModalQRProducto
+        mostrar={mostrarModalQR}
+        onHide={() => setMostrarModalQR(false)}
+        producto={productoQR}
       />
 
       <NotificacionOperacion
@@ -381,11 +435,13 @@ const Productos = () => {
             <div className="alert alert-info">No hay productos para mostrar.</div>
           ) : (
             <TablaProductos
-              productos={productosFiltrados} // Le pasamos los filtrados por la búsqueda
-              categorias={categorias}        // ¡Aquí conectamos la segunda tabla obligatoria!
+              productos={productosFiltrados}
+              categorias={categorias}
               abrirModalEdicion={abrirModalEdicion}
               abrirModalEliminacion={abrirModalEliminacion}
               generarPDFProducto={generarPDFProducto}
+              generarQRImagen={generarQRImagen}
+              copiarProducto={copiarProducto}
             />
           )}
         </Col>

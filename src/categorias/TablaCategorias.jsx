@@ -6,7 +6,9 @@ const TablaCategorias = ({
     categorias,
     abrirModalEdicion,
     abrirModalEliminacion,
-    generarPDFCategoria
+    generarPDFCategoria,
+    copiarCategoria,
+    generarQRImagen
 }) => {
     console.log("Tratando de demostrar categorias");
     console.log(categorias);
@@ -61,7 +63,7 @@ const TablaCategorias = ({
                                         className="ms-2"
                                     >
                                         <i className="bi bi-trash"></i>
-                                        
+
                                     </Button>
 
 
@@ -72,6 +74,28 @@ const TablaCategorias = ({
                                         onClick={() => generarPDFCategoria(categoria)}
                                     >
                                         <i className="bi bi-file-earmark-pdf"></i>
+                                    </Button>
+
+                                    <Button
+                                        variant="outline-success"
+                                        size="sm"
+                                        className="m-1"
+                                        onClick={() => copiarCategoria(categoria)}
+                                        title="Copiar al portapapeles"
+                                    >
+                                        <i className="bi bi-clipboard"></i>
+                                    </Button>
+
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => {
+                                        generarQRImagen(categoria);
+                                        setIdTarjetaActiva(null);
+                                      }}
+                                      title="Generar codigo QR de la imagen"
+                                    >
+                                        <i className="bi bi-qr-code"></i>
                                     </Button>
                                 </td>
                             </tr>

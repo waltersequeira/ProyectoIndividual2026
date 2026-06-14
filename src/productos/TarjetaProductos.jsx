@@ -1,20 +1,16 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Card, Row, Col, Spinner, Button } from "react-bootstrap";
+import React, { useState, useCallback, useEffect } from "react";
+import { Card, Row, Col, Button } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import Productos from "../views/Productos";
 
 const TarjetaProducto = ({
     producto,
     abrirModalEdicion,
-    abrirModalEliminacion
+    abrirModalEliminacion,
+    copiarProducto,
+    generarQRImagen
 }) => {
 
-    const [cargando, setCargando] = useState(true);
     const [idTarjetaActiva, setIdTarjetaActiva] = useState(null);
-
-    useEffect(() => {
-        setCargando(!(Productos && Productos.length > 0));
-    }, [Productos]);
 
     const manejarTeclaEscape = useCallback((evento) => {
         if (evento.key === "Escape") setIdTarjetaActiva(null);
@@ -27,38 +23,30 @@ const TarjetaProducto = ({
 
     const alternarTarjetaActiva = (id) => {
         setIdTarjetaActiva((anterior) => (anterior === id ? null : id));
-    }
+    };
+
+    if (!producto) return null;
+
+    const tarjetaActiva = idTarjetaActiva === producto.id_producto;
 
     return (
-        <>
-            {cargando ? (
-                <div className="text-center my-5">
-                    <h5>Cargando categorias...</h5>
-                    <Spinner animation="border" variant="success" role="status" />
-                </div>
-            ) : (
-                <div>
-                    {Productos.map((producto) => {
-                        const tarjetaActiva = idTarjetaActiva === producto.id_producto;
-
-                        return (
-                            <Card
-                                key={producto.id_producto}
-                                className="mb-3 border-0 rounded-3 shadow-sm w-100 tarjeta-producto-contenedor"
-                                onClick={() => alternarTarjetaActiva(producto.id_producto)}
-                                tabIndex={0}
-                                onKeyDown={(evento) => {
-                                    if (evento.key === "Enter" || evento.key === " ") {
-                                        evento.preventDefault();
-                                        alternarTarjetaActiva(producto.id_producto);
-                                    }
-                                }}
-                                aria-label={`Producto ${producto.nombre_producto}`}
-                            >
+        <Card
+            key={producto.id_producto}
+            className="mb-3 border-0 rounded-3 shadow-sm w-100 tarjeta-producto-contenedor"
+            onClick={() => alternarTarjetaActiva(producto.id_producto)}
+            tabIndex={0}
+            onKeyDown={(evento) => {
+                if (evento.key === "Enter" || evento.key === " ") {
+                    evento.preventDefault();
+                    alternarTarjetaActiva(producto.id_producto);
+                }
+            }}
+            aria-label={`Producto ${producto.nombre_producto}`}
+        >
                                 <Card.Body
                                     className={`p-2 tarjeta-producto-cuerpo ${tarjetaActiva
-                                            ? "tarjeta-producto-activo"
-                                            : "tarjeta-producto-cuerpo-inactivo"
+                                        ? "tarjeta-producto-activo"
+                                        : "tarjeta-producto-cuerpo-inactivo"
                                         }`}
                                 >
                                     <Row className="align-items-center gx-3">
@@ -130,16 +118,33 @@ const TarjetaProducto = ({
                                             >
                                                 <i className="bi bi-trash"></i>
                                             </Button>
+
+                                            <Button
+                                                variant="outline-success"
+                                                size="sm"
+                                                className="m-1"
+                                                onClick={() => copiarProducto(producto)}
+                                                title="Copiar al portapapeles"
+                                            >
+                                                <i className="bi bi-clipboard"></i>
+                                            </Button>
+
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                onClick={() => {
+                                                    generarQRImagen(producto);
+                                                    setIdTarjetaActiva(null);
+                                                }}
+                                                title="Generar codigo QR de la imagen"
+                                            >
+                                                <i className="bi bi-qr-code"></i>
+                                            </Button>
                                         </div>
                                     </div>
                                 )}
                             </Card>
-                        );
-                    })}
-                </div>
-            )}
-        </>
     );
 };
 
-export default TarjetaCategoria;
+export default TarjetaProducto;

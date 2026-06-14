@@ -131,7 +131,7 @@ const Encabezado = () => {
                             <strong>Ventas</strong>
                         </Nav.Link>
 
-                         <Nav.Link
+                        <Nav.Link
                             onClick={() => manejarNavegacion("/dashboard")}
                             className={mostrarMenu ? "color-texto-marca" : "text-white"}
                         >

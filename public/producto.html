@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalle del producto</title>
+    <style>
+      :root { color-scheme: light; font-family: Arial, Helvetica, sans-serif; }
+      body { margin: 0; background: #f5f7fb; color: #1f2937; }
+      .card { max-width: 980px; margin: 24px auto; background: #fff; border-radius: 18px; box-shadow: 0 10px 30px rgba(15,23,42,.08); overflow: hidden; }
+      .grid { display: grid; grid-template-columns: 1fr 1.1fr; min-height: 420px; }
+      .img-wrap { display:flex; align-items:center; justify-content:center; background:#eff6ff; padding: 18px; }
+      .img-wrap img { width:100%; max-height: 360px; object-fit: contain; }
+      .info { padding: 24px; }
+      .badge { display:inline-block; padding:6px 10px; border-radius:999px; background:#2563eb; color:#fff; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+      h1 { font-size: 28px; line-height:1.2; margin: 12px 0 8px; }
+      p { color:#475569; line-height:1.5; }
+      .price { font-size: 30px; color:#059669; font-weight:700; margin: 12px 0 18px; }
+      .meta { color:#64748b; font-size: 14px; }
+      .muted { color:#94a3b8; font-size: 13px; }
+      @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .img-wrap { min-height: 260px; } }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <section class="grid">
+        <article class="img-wrap" id="imagenBox"></article>
+        <article class="info">
+          <span class="badge">Producto</span>
+          <h1 id="nombre">Producto</h1>
+          <p id="descripcion">Sin descripción</p>
+          <div class="price" id="precio">S/ 0.00</div>
+          <p class="meta" id="idProducto">ID: -</p>
+          <p class="meta" id="categoria">Categoría: Sin categoría</p>
+          <p class="muted">Esta vista rápida se abre desde el QR para que cargue sin depender del render completo de la app.</p>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const nombre = params.get('nombre') || 'Producto';
+      const descripcion = params.get('descripcion') || 'Sin descripción';
+      const precio = params.get('precio');
+      const categoria = params.get('categoria') || 'Sin categoría';
+      const idProducto = params.get('id') || 'Sin ID';
+      const imagen = params.get('imagen');
+
+      document.getElementById('nombre').textContent = nombre;
+      document.getElementById('descripcion').textContent = descripcion;
+      document.getElementById('precio').textContent = precio ? `S/ ${Number(precio).toFixed(2)}` : 'S/ 0.00';
+      document.getElementById('idProducto').textContent = `ID: ${idProducto}`;
+      document.getElementById('categoria').textContent = `Categoría: ${categoria}`;
+
+      const imagenBox = document.getElementById('imagenBox');
+      if (imagen) {
+        imagenBox.innerHTML = `<img src="${imagen}" alt="${nombre}" />`;
+      } else {
+        imagenBox.innerHTML = '<div style="color:#64748b; font-size:16px;">Sin imagen disponible</div>';
+      }
+    </script>
+  </body>
+</html>

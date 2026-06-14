@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { supabase } from "../database/supabaseconfig";
 
 import ModalRegistroCategoria from "../categorias/ModalRegistroCategoria";
@@ -14,6 +14,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import ModalEnvioCorreoCategorias from "../categorias/ModalEnvioCorreoCategorias";
 import emailjs from '@emailjs/browser';
+import ModalQRProducto from "../productos/ModalQRProducto";
 
 const Categorias = () => {
 
@@ -36,6 +37,40 @@ const Categorias = () => {
     const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
     const [categoriaAEliminar, setCategoriaAEliminar] = useState(null);
     const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
+
+    const [mostrarModalQR, setMostrarModalQR] = useState(false);
+    const [productoQR, setProductoQR] = useState(null);
+
+    const generarQRImagen = (item) => {
+        setProductoQR(item);
+        setMostrarModalQR(true);
+    };
+
+    const copiarCategoria = async (categoria) => {
+        if (!categoria) return;
+
+        const texto = `
+    ID: ${categoria.id_categoria}
+    Categoria: ${categoria.nombre_categoria}
+    Descripcion: ${categoria.descripcion_categoria || 'Sin descripcion'}`;
+
+        try {
+            await navigator.clipboard.writeText(texto);
+
+            setToast({
+                mostrar: true,
+                mensaje: `Categoria "${categoria.nombre_categoria}" copiada al portapapeles`,
+                tipo: "exito",
+            });
+        } catch (err) {
+            console.error("Error al copiar:", err);
+            setToast({
+                mostrar: true,
+                mensaje: "No se pudo copiar al portapapeles",
+                tipo: "error",
+            });
+        }
+    };
 
     const generarPDFCategoria = (categoria) => {
 
@@ -88,6 +123,10 @@ const Categorias = () => {
             setCategoriasFiltradas(filtradas);
         }
     }, [textoBusqueda, categorias]);
+
+    useEffect(() => {
+        establecerPaginaActual(1);
+    }, [textoBusqueda]);
 
     const [categoriaEditar, setCategoriaEditar] = useState({
         id_categoria: "",
@@ -385,19 +424,21 @@ const Categorias = () => {
 
     return (
         <Container className="mt-3">
+            {/* CABECERA ÚNICA: Título y Botones */}
             <Row className="align-items-center mb-3">
-                <Col xs={9} sm={7} lg={7} className="d-flex align-items-center">
+                <Col xs={12} md={6} className="d-flex align-items-center mb-2 mb-md-0">
                     <h3 className="mb-0">
-                        <i className="bi-bookmark-plus-fill me-2"></i> Categorias
+                        <i className="bi-bookmark-plus-fill me-2"></i> Categorías
                     </h3>
                 </Col>
-                <Col xs={3} sm={5} md={5} lg={5} className="text-end">
-                    <Button
-                        onClick={() => setMostrarModal(true)}
-                        size="md"
-                    >
+                <Col xs={12} md={6} className="text-md-end">
+                    <Button variant="primary" onClick={abrirModalCorreo} size="md" className="me-2">
+                        <i className="bi bi-envelope"></i>
+                        <span className="d-none d-sm-inline ms-2">Enviar por Correo</span>
+                    </Button>
+                    <Button onClick={() => setMostrarModal(true)} size="md">
                         <i className="bi-plus-lg"></i>
-                        <span className="d-none d-sm-inline ms-2">Nueva Categoria</span>
+                        <span className="d-none d-sm-inline ms-2">Nueva Categoría</span>
                     </Button>
                 </Col>
             </Row>
@@ -414,18 +455,20 @@ const Categorias = () => {
                 </Row>
             )}
 
-            {/* Cuadro de busqueda debajo de la linea divisora */}
-            <Row className="mb-4">
-                <Col md={6} lg={5}>
-                    <CuadroBusquedas
-                        textoBusqueda={textoBusqueda}
-                        manejarCambioBusqueda={manejarBusqueda}
-                        placeholder="Buscar por nombre o descripcion..."
-                    />
-                </Col>
-            </Row>
+            {/* Cuadro de busqueda */}
+            {!cargando && (
+                <Row className="mb-4">
+                    <Col md={6} lg={5}>
+                        <CuadroBusquedas
+                            textoBusqueda={textoBusqueda}
+                            manejarCambioBusqueda={manejarBusqueda}
+                            placeholder="Buscar por nombre o descripcion..."
+                        />
+                    </Col>
+                </Row>
+            )}
 
-            {/* Mensaje de no coincidencias solo cuando hay busqueda y no hay resultados */}
+            {/* Mensajes de Alerta */}
             {!cargando && textoBusqueda.trim() && categoriasFiltradas.length === 0 && (
                 <Row className="mb-4">
                     <Col>
@@ -437,66 +480,42 @@ const Categorias = () => {
                 </Row>
             )}
 
-            <Row className="align-items-center mb-3">
-                <Col xs={8} sm={8} md={8} lg={8} className="d-flex align-items-center">
-                    <h3 className="mb-0">
-                        <i className="bi-bookmark-plus-fill me-2"></i> Categorías
-                    </h3>
-                </Col>
-                <Col xs={2} sm={2} md={2} lg={2} className="text-end">
-                    <Button variant="primary" onClick={abrirModalCorreo} size="md">
-                        <i className="bi bi-envelope"></i>
-                        <span className="d-none d-lg-inline ms-2">Enviar por Correo</span>
-                    </Button>
-                </Col>
-                <Col xs={2} sm={2} md={2} lg={2} className="text-end">
-                    <Button
-                        onClick={() => setMostrarModal(true)}
-                        size="md"
-                    >
-                        <i className="bi-plus-lg"></i>
-                        <span className="d-none d-lg-inline ms-2">Nueva Categoría</span>
-                    </Button>
-                </Col>
-            </Row>
+            {!cargando && categorias.length === 0 && (
+                <Row className="text-center my-4">
+                    <Col>
+                        <Alert variant="warning">No hay categorías registradas aún.</Alert>
+                    </Col>
+                </Row>
+            )}
 
-
-            {/* Lista de categorias filtradas */}
+            {/* Listas (Tarjeta/Tabla) */}
             {!cargando && categoriasFiltradas.length > 0 && (
-                <Row>
-                    <Col xs={12} sm={12} md={12} className="d-lg-none">
-                        <TarjetaCategoria
-                            categorias={categoriasFiltradas}
-                            abrirModalEdicion={abrirModalEdicion}
-                            abrirModalEliminacion={abrirModalEliminacion}
-                        />
-                    </Col>
-                </Row>
+                <>
+                    <Row className="d-lg-none">
+                        <Col xs={12}>
+                            <TarjetaCategoria
+                                categorias={categoriasFiltradas}
+                                abrirModalEdicion={abrirModalEdicion}
+                                abrirModalEliminacion={abrirModalEliminacion}
+                                copiarCategoria={copiarCategoria}
+                                generarQRImagen={generarQRImagen}
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="d-none d-lg-block">
+                        <Col lg={12}>
+                            <TablaCategorias
+                                categorias={categoriasPaginadas}
+                                abrirModalEdicion={abrirModalEdicion}
+                                abrirModalEliminacion={abrirModalEliminacion}
+                                generarPDFCategoria={generarPDFCategoria}
+                                copiarCategoria={copiarCategoria}
+                                generarQRImagen={generarQRImagen}
+                            />
+                        </Col>
+                    </Row>
+                </>
             )}
-
-
-            {/* Lista de categorias cargadas */}
-            {!cargando && categorias.length > 0 && (
-                <Row>
-                    <Col lg={12} className="d-none d-lg-block">
-                        <TablaCategorias
-                            categorias={categorias}
-                            abrirModalEdicion={abrirModalEdicion}
-                            abrirModalEliminacion={abrirModalEliminacion}
-                            generarPDFCategoria={generarPDFCategoria}
-                        />
-                    </Col>
-                </Row>
-            )}
-
-            <Col xs={12} sm={12} md={12} className="d-lg-none">
-                <TarjetaCategoria
-                    categorias={categorias}
-                    abrirModalEdicion={abrirModalEdicion}
-                    abrirModalEliminacion={abrirModalEliminacion}
-                />
-            </Col>
-
 
             {/* Paginacion */}
             {categoriasFiltradas.length > 0 && (
@@ -509,7 +528,7 @@ const Categorias = () => {
                 />
             )}
 
-            {/* Modal de Registro */}
+            {/* Modales y Notificaciones */}
             <ModalRegistroCategoria
                 mostrarModal={mostrarModal}
                 setMostrarModal={setMostrarModal}
@@ -533,7 +552,6 @@ const Categorias = () => {
                 categoria={categoriaAEliminar}
             />
 
-            {/* Notificacion */}
             <NotificacionOperacion
                 mostrar={toast.mostrar}
                 mensaje={toast.mensaje}
@@ -551,8 +569,13 @@ const Categorias = () => {
                 totalCategorias={categorias.length}
             />
 
-
+            <ModalQRProducto
+                mostrar={mostrarModalQR}
+                onHide={() => setMostrarModalQR(false)}
+                producto={productoQR}
+            />
         </Container>
+    
     );
 };
 
