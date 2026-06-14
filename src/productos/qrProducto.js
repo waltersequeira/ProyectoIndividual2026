@@ -1,11 +1,10 @@
 export const obtenerBaseQR = () => {
-  return "https://discosa-app.netlify.app";
+  return "https://proyectowalter2026.netlify.app";
 };
 
 const construirUrlDetalleProducto = (producto) => {
   const params = new URLSearchParams();
-  if (producto.id_producto != null) params.set("id", String(producto.id_producto));
-
+  
   if (producto.id_producto != null) {
     params.set("id", String(producto.id_producto));
   }
