@@ -76,7 +76,13 @@ const TablaProductos = ({
                                             <i className="bi bi-trash"></i>
                                         </Button>
 
-                                        <Button variant="outline-info" size="sm" onClick={() => generarQRImagen(producto)}>
+                                        <Button variant="outline-info" size="sm" onClick={() => {
+                                            const productoConNombre = {
+                                                ...producto,
+                                                nombre_categoria_texto: obtenerNombreCategoria(producto.categoria_producto)
+                                            };
+                                            generarQRImagen(productoConNombre);
+                                        }}>
                                             <i className="bi bi-qr-code"></i>
                                         </Button>
 
@@ -110,12 +116,12 @@ const TablaProductos = ({
                                     </div>
                                     <div className="d-flex justify-content-end gap-2 border-top pt-2">
                                         <Button variant="primary" size="sm" onClick={() => generarPDFProducto(producto)}><i className="bi bi-file-earmark-pdf"></i></Button>
-                                        
+
                                         {/* Botón Editar - Limpio */}
                                         <Button variant="warning" size="sm" onClick={() => abrirModalEdicion(producto)}>
                                             <i className="bi bi-pencil"></i>
                                         </Button>
-                                        
+
                                         <Button variant="danger" size="sm" onClick={() => {
                                             abrirModalEliminacion(producto);
                                         }}><i className="bi bi-trash"></i></Button>

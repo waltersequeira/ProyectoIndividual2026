@@ -21,7 +21,9 @@ const construirUrlDetalleProducto = (producto) => {
     params.set("descripcion", producto.descripcion_producto);
   }
 
-  if (producto.categoria_producto) {
+  if (producto.nombre_categoria_texto) {
+    params.set("categoria", producto.nombre_categoria_texto);
+  } else if (producto.categoria_producto) {
     params.set("categoria", producto.categoria_producto);
   }
 
