@@ -191,8 +191,8 @@ const Encabezado = () => {
                         style={{ cursor: "pointer" }}
                     >
                         <img
-                            alt=""
-                            src={logo}
+                            src="/clker-free-vector-images-sickle-39036_1280.png"
+                            alt="Logo"
                             width="45"
                             height="45"
                             className="d-inline-block me-2"
